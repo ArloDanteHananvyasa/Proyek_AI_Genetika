@@ -12,7 +12,7 @@ Struktur Proyek
     Fitness Class (dalam Population): Menghitung nilai fitness dari setiap kromosom.
 
 Penjelasan Kelas dan Fungsinya
-Main
+**Main**
 
 Kelas utama yang bertanggung jawab untuk:
 
@@ -20,7 +20,7 @@ Kelas utama yang bertanggung jawab untuk:
     Menginisialisasi kelas YinYangPuzzle dengan konfigurasi papan.
     Memulai proses pencarian solusi menggunakan algoritma genetika.
 
-YinYangPuzzle
+**YinYangPuzzle**
 
 Kelas ini merepresentasikan puzzle YinYang dan menyimpan posisi kunci (posisi tetap) dalam papan permainan. Beberapa fungsi utama dalam kelas ini adalah:
 
@@ -28,14 +28,14 @@ Kelas ini merepresentasikan puzzle YinYang dan menyimpan posisi kunci (posisi te
     isLockedPosition: Mengecek apakah suatu posisi di papan adalah posisi yang dikunci atau posisi tetap yang tidak boleh diubah.
     getBoard dan getBoardSize: Mengembalikan data papan dan ukuran papan untuk diolah oleh algoritma genetika.
 
-GeneticSolution
+**GeneticSolution**
 
 Kelas ini mengatur proses algoritma genetika, termasuk:
 
     solve: Metode utama yang menjalankan proses algoritma genetika dalam beberapa generasi untuk mencari solusi terbaik.
     Operasi Genetik: Mengatur operasi seperti inisialisasi populasi, seleksi, kawin silang (crossover), dan mutasi.
 
-Population
+**Population**
 
 Kelas Population bertanggung jawab untuk mengelola sekumpulan Chromosome, yaitu solusi potensial untuk puzzle. Fitur utama dari kelas ini termasuk:
 
@@ -44,14 +44,14 @@ Kelas Population bertanggung jawab untuk mengelola sekumpulan Chromosome, yaitu 
     selection, crossover, mutation: Melakukan seleksi, kawin silang, dan mutasi untuk menciptakan generasi baru dari solusi potensial.
     hasSolution: Mengecek apakah sudah ditemukan solusi optimal.
 
-Chromosome (di dalam Population)
+**Chromosome (nested class di dalam Population)**
 
 Kelas Chromosome merepresentasikan satu solusi potensial dalam populasi. Fitur utama dari Chromosome adalah:
 
     randomize: Mengacak gen (posisi pada papan) untuk membuat solusi awal.
     evaluateFitness: Memanggil Fitness untuk menghitung nilai fitness dari kromosom berdasarkan aturan puzzle.
 
-Fitness (di dalam Population)
+**Fitness (nested class di dalam Population)**
 
 Kelas Fitness bertanggung jawab untuk menghitung dan menyimpan nilai fitness dari setiap Chromosome, yang digunakan untuk mengevaluasi seberapa baik solusi tersebut dalam menyelesaikan puzzle. Fitness yang lebih tinggi menunjukkan solusi yang lebih mendekati hasil optimal.
 Cara Kerja Algoritma Genetika
