@@ -73,18 +73,86 @@ public class Population {
     class Fitness {
         private double value;
         private Chromosome chromosome;
-
+    
         public Fitness(Chromosome chromosome) {
             this.chromosome = chromosome;
         }
-
+    
         public void calculate() {
-            // Implement fitness calculation logic based on puzzle constraints
-            value = 0; // Replace with actual fitness calculation
-        }
+            char[] board = chromosome.genes;
+            int size = (int) Math.sqrt(board.length);
+            int checkerboardPenalty = 0;
+            int islandPenalty = 0;
+            int violationPenalty = 0;
+            int bobotCP = 5;
+            int bobotVP = 10;
+            int bobotIP = 5;
+            
+            // Penalti Checkerboard Pattern
+            for (int row = 0; row < size - 1; row++) {
+                for (int col = 0; col < size - 1; col++) {
+                    char current = board[row * size + col];
+                    char right = board[row * size + col + 1];
+                    char below = board[(row + 1) * size + col];
+                    char diagonal = board[(row + 1) * size + col + 1];
 
+                    // Penalti jika mengikuti pola checkerboard
+                    if ((current == 'W' && right == 'B' && below == 'B' && diagonal == 'W') ||
+                        (current == 'B' && right == 'W' && below == 'W' && diagonal == 'B')) {
+                        checkerboardPenalty++;
+                    }
+                    // Penalti 4 kotak warna sama
+                    if (current == right && current == below && current == diagonal) {
+                        violationPenalty++;
+                    }
+                }
+            }
+
+            // Itung ada berapa island
+            boolean[] visited = new boolean[board.length];
+            int whiteIslands = 0, blackIslands = 0;
+    
+            for (int i = 0; i < board.length; i++) {
+                if (!visited[i]) {
+                    if (board[i] == 'W') {
+                        whiteIslands++;
+                        exploreIsland(board, size, i, 'W', visited);
+                    } else if (board[i] == 'B') {
+                        blackIslands++;
+                        exploreIsland(board, size, i, 'B', visited);
+                    }
+                }
+            }
+    
+            // Penalty kalau island berlebih
+            islandPenalty = (whiteIslands > 1 ? whiteIslands - 1 : 0) + 
+                            (blackIslands > 1 ? blackIslands - 1 : 0);
+    
+            // Calculate total fitness
+            value = -(bobotCP * checkerboardPenalty) - (bobotVP * violationPenalty) - (bobotIP * islandPenalty);
+            
+        }
+    
         public double getValue() {
             return value;
+        }
+    
+        // Explore island dengan DFS
+        private void exploreIsland(char[] board, int size, int index, char color, boolean[] visited) {
+            if (index < 0 || index >= board.length || visited[index] || board[index] != color) {
+                return;
+            }
+    
+            visited[index] = true;
+    
+            int row = index / size;
+            int col = index % size;
+    
+            // Check 4 tetangganya
+            if (row > 0) exploreIsland(board, size, index - size, color, visited); // up
+            if (row < size - 1) exploreIsland(board, size, index + size, color, visited); // down
+            if (col > 0) exploreIsland(board, size, index - 1, color, visited); // left
+            if (col < size - 1) exploreIsland(board, size, index + 1, color, visited); // right
         }
     }
 }
