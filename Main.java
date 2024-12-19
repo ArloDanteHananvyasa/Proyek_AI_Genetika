@@ -4,7 +4,8 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = "C:\\Users\\seba\\Documents\\hw\\ai\\Proyek_AI_Genetika\\board1.txt";
+        //ganti pake path sendiri
+        String filePath = "C:\\Users\\...\\Documents\\...\\Proyek_AI_Genetika\\board1.txt";
         init(filePath);
     }
 
