@@ -5,7 +5,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         //ganti pake path sendiri
-        String filePath = "C:\\Users\\...\\Documents\\...\\Proyek_AI_Genetika\\board1.txt";
+        String filePath = "C:\\Users\\____\\Documents\\____\\Proyek_AI_Genetika\\board1.txt";
         init(filePath);
     }
 
@@ -53,9 +53,9 @@ public class Main {
                 System.out.println();
             }
 
-            // YinYangPuzzle yyp = new YinYangPuzzle(board);
-            // GeneticSolution solution = new GeneticSolution(yyp);
-            // solution.solve(); // Solve the puzzle using the genetic algorithm
+            YinYangPuzzle yyp = new YinYangPuzzle(board);
+            GeneticSolution solution = new GeneticSolution(yyp);
+            solution.solve(); // Solve the puzzle using the genetic algorithm
 
         } catch (IOException e) {
             System.out.println("Error reading the file: " + e.getMessage());

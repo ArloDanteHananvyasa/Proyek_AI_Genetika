@@ -25,12 +25,66 @@ public class Population {
         }
     }
 
-    public void selection() {
-        // Example: Implement selection (e.g., tournament or roulette selection)
+    public void selection() { //rank selection, select 50% dari populasi jadi parent
+
+        chromosomes.sort((c1, c2) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue()));
+
+        int[] ranks = new int[chromosomes.size()];
+        for (int i = 0; i < chromosomes.size(); i++) {
+            ranks[i] = i + 1;
+        }
+
+        int totalRankSum = Arrays.stream(ranks).sum();
+
+        List<Chromosome> parents = new ArrayList<>();
+        Random random = new Random();
+
+        while (parents.size() < size / 2) {
+
+            int randomValue = random.nextInt(totalRankSum) + 1;
+            int cumulativeSum = 0;
+
+            for (int i = 0; i < chromosomes.size(); i++) {
+                cumulativeSum += ranks[i];
+                if (cumulativeSum >= randomValue) {
+                    parents.add(chromosomes.get(i));
+                    break;
+                }
+            }
+        }
+        chromosomes = parents;
     }
 
     public void crossover() {
-        // Example: Implement crossover between chromosomes
+        Random random = new Random();
+        while (chromosomes.size() < size) {
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+            Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+
+            // mastiin ga sama
+            while (parent1 == parent2) {
+                parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+            }
+
+            int crossoverPoint = random.nextInt(parent1.genes.length);
+
+            char[] offspring1Genes = new char[parent1.genes.length];
+            char[] offspring2Genes = new char[parent2.genes.length];
+
+            for (int i = 0; i < parent1.genes.length; i++) {
+                if (i < crossoverPoint) {
+                    offspring1Genes[i] = parent1.genes[i];
+                    offspring2Genes[i] = parent2.genes[i];
+                } else {
+                    offspring1Genes[i] = parent2.genes[i];
+                    offspring2Genes[i] = parent1.genes[i];
+                }
+            }
+
+            chromosomes.add(new Chromosome(puzzle, offspring1Genes));
+            chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+        }
+
     }
 
     public void mutation() {
@@ -42,6 +96,8 @@ public class Population {
         return false;
     }
 
+    
+
     class Chromosome {
         private char[] genes;
         private Fitness fitness;
@@ -52,13 +108,27 @@ public class Population {
             this.fitness = new Fitness(this);
         }
 
+        public Chromosome(YinYangPuzzle puzzle, char[] genes) {
+            this.genes = genes;
+            this.fitness = new Fitness(this);
+        }
+
         public void randomize() {
             Random rand = new Random();
-            for (int i = 0; i < genes.length; i++) {
+            for (int i = 0; i < this.genes.length; i++) {
                 if (!puzzle.isLockedPosition(i)) {
-                    genes[i] = rand.nextBoolean() ? 'W' : 'B'; // Example gene assignment
+                    int randomChoice = rand.nextInt(2) + 1;
+                    System.out.printf("%d ", randomChoice);
+                    if (randomChoice == 1) {
+                        this.genes[i] = 'W';
+                    } else {
+                        this.genes[i] = 'B';
+                    }
+                    // this.genes[i] = (randomChoice == 1) ? 'W' : 'B';
+                    // System.out.println(randomChoice);
                 }
             }
+            System.out.println();  
         }
 
         public void evaluateFitness() {
@@ -105,8 +175,12 @@ public class Population {
                     if (current == right && current == below && current == diagonal) {
                         violationPenalty++;
                     }
+                    System.out.printf("%c ", current);
                 }
+                System.out.println();
             }
+            System.out.println();
+            System.out.println();
 
             // Itung ada berapa island
             boolean[] visited = new boolean[board.length];
@@ -130,6 +204,7 @@ public class Population {
     
             // Calculate total fitness
             value = -(bobotCP * checkerboardPenalty) - (bobotVP * violationPenalty) - (bobotIP * islandPenalty);
+            // System.out.println(value);
             
         }
     
