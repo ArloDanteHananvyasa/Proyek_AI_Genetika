@@ -4,48 +4,45 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        //ganti pake path sendiri
+        //ganti path sendiri
         String filePath = "C:\\Users\\____\\Documents\\____\\Proyek_AI_Genetika\\board1.txt";
         init(filePath);
     }
 
     private static void init(String filePath) {
-        // System.out.println("How many rows and columns on the board? (Enter a number between 6 - 24):");
-
         char[][] board;
 
         try (BufferedReader bReader = new BufferedReader(new FileReader(filePath))) {
-            System.out.println("Reading the board from file: " + filePath);
+            System.out.println("reading file: " + filePath);
 
+            // baca line pertama
             String firstLine = bReader.readLine();
             if (firstLine == null || firstLine.isEmpty()) {
-                throw new IllegalArgumentException("The board file is empty or invalid.");
+                throw new IllegalArgumentException("empty board");
             }
 
+            // split per char
             String[] values = firstLine.split(" ");
-            int size = values.length; // Assume square board, size is the number of columns in the first row
+            int size = values.length;
             board = new char[size][size];
 
-
             for (int i = 0; i < size; i++) {
-                if (i > 0) { // Read subsequent lines
+                if (i > 0) {
                     firstLine = bReader.readLine();
-                    if (firstLine == null) {
-                        throw new IllegalArgumentException("The board file has incomplete rows.");
-                    }
                     values = firstLine.split(" ");
                 }
                 if (values.length != size) {
-                    throw new IllegalArgumentException("The board file is not a valid square board.");
+                    throw new IllegalArgumentException("board isnt square");
                 }
                 for (int j = 0; j < size; j++) {
                     board[i][j] = values[j].charAt(0);
                 }
             }
              
-            System.out.println("Board size: " + size + "x" + size);
+            System.out.println("board size: " + size);
 
-            System.out.println("Board read from file:");
+            // print board untuk cek
+            System.out.println("board:");
             for (char[] row : board) {
                 for (char value : row) {
                     System.out.print(value + " ");
@@ -55,12 +52,12 @@ public class Main {
 
             YinYangPuzzle yyp = new YinYangPuzzle(board);
             GeneticSolution solution = new GeneticSolution(yyp);
-            solution.solve(); // Solve the puzzle using the genetic algorithm
+            solution.solve();
 
         } catch (IOException e) {
-            System.out.println("Error reading the file: " + e.getMessage());
+            System.out.println(e.getMessage());
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.toString());
+            System.out.println(e.toString());
         }
 
     }

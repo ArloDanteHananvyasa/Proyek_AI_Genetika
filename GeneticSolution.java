@@ -2,11 +2,11 @@ public class GeneticSolution {
     private Population population;
 
     public GeneticSolution(YinYangPuzzle puzzle) {
-        this.population = new Population(100, puzzle); // Set population size
+        this.population = new Population(100, puzzle); // population size
     }
 
     public void solve() {
-        // Initial population generation
+        // init population
         population.generateInitialPopulation();
 
         // Example of a genetic algorithm loop
@@ -16,9 +16,8 @@ public class GeneticSolution {
             // population.crossover();
             // population.mutation();
 
-            // Check for solution or stopping condition
             if (population.hasSolution()) {
-                System.out.println("Solution found in generation " + generation);
+                System.out.println("solution found in generation " + generation);
                 break;
             }
         }
