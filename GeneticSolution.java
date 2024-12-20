@@ -10,11 +10,11 @@ public class GeneticSolution {
         population.generateInitialPopulation();
 
         // Example of a genetic algorithm loop
-        for (int generation = 0; generation < 1000; generation++) {
+        for (int generation = 0; generation < 1; generation++) {
             population.evaluateFitness();
-            population.selection();
-            population.crossover();
-            population.mutation();
+            // population.selection();
+            // population.crossover();
+            // population.mutation();
 
             // Check for solution or stopping condition
             if (population.hasSolution()) {
