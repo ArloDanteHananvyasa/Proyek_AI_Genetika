@@ -25,7 +25,7 @@ public class Population {
         }
     }
 
-    public void selection() { //rank selection, select 50% dari populasi jadi parent
+    public void selection() { // rank selection, select 50% dari populasi jadi parent
 
         chromosomes.sort((c1, c2) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue()));
 
@@ -39,7 +39,7 @@ public class Population {
         List<Chromosome> parents = new ArrayList<>();
         Random random = new Random();
 
-        while (parents.size() < size / 2) {
+        while (parents.size() < size/2) {
 
             int randomValue = random.nextInt(totalRankSum) + 1;
             int cumulativeSum = 0;
@@ -88,11 +88,10 @@ public class Population {
     }
 
     public void mutation() {
-        // Example: Implement mutation logic for chromosomes
+
     }
 
     public boolean hasSolution() {
-        // Example: Implement a check to see if an ideal solution has been found
         return false;
     }
 
@@ -158,7 +157,7 @@ public class Population {
             int bobotVP = 10;
             int bobotIP = 5;
             
-            // Penalti Checkerboard Pattern
+            // penalti checkerboard pattern
             for (int row = 0; row < size - 1; row++) {
                 for (int col = 0; col < size - 1; col++) {
                     char current = board[row * size + col];
@@ -166,12 +165,12 @@ public class Population {
                     char below = board[(row + 1) * size + col];
                     char diagonal = board[(row + 1) * size + col + 1];
 
-                    // Penalti jika mengikuti pola checkerboard
+                    // penalti jika mengikuti pola checkerboard
                     if ((current == 'W' && right == 'B' && below == 'B' && diagonal == 'W') ||
                         (current == 'B' && right == 'W' && below == 'W' && diagonal == 'B')) {
                         checkerboardPenalty++;
                     }
-                    // Penalti 4 kotak warna sama
+                    // penalti 4 kotak warna sama
                     if (current == right && current == below && current == diagonal) {
                         violationPenalty++;
                     }
@@ -182,7 +181,7 @@ public class Population {
             System.out.println();
             System.out.println();
 
-            // Itung ada berapa island
+            // itung ada berapa island
             boolean[] visited = new boolean[board.length];
             int whiteIslands = 0, blackIslands = 0;
     
@@ -198,11 +197,11 @@ public class Population {
                 }
             }
     
-            // Penalty kalau island berlebih
+            // penalty kalau island berlebih
             islandPenalty = (whiteIslands > 1 ? whiteIslands - 1 : 0) + 
                             (blackIslands > 1 ? blackIslands - 1 : 0);
     
-            // Calculate total fitness
+            // palculate total fitness
             value = -(bobotCP * checkerboardPenalty) - (bobotVP * violationPenalty) - (bobotIP * islandPenalty);
             // System.out.println(value);
             
@@ -212,7 +211,7 @@ public class Population {
             return value;
         }
     
-        // Explore island dengan DFS
+        // explore island dengan DFS
         private void exploreIsland(char[] board, int size, int index, char color, boolean[] visited) {
             if (index < 0 || index >= board.length || visited[index] || board[index] != color) {
                 return;
@@ -223,7 +222,7 @@ public class Population {
             int row = index / size;
             int col = index % size;
     
-            // Check 4 tetangganya
+            // check 4 tetangganya
             if (row > 0) exploreIsland(board, size, index - size, color, visited); // up
             if (row < size - 1) exploreIsland(board, size, index + size, color, visited); // down
             if (col > 0) exploreIsland(board, size, index - 1, color, visited); // left
