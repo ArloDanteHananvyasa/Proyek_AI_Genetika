@@ -15,12 +15,14 @@ public class Population {
         for (int i = 0; i < size; i++) {
             Chromosome chromosome = new Chromosome(puzzle);
             chromosome.randomize();
-            chromosomes.add(chromosome);
+            this.chromosomes.add(chromosome);
+            // chromosome.itprints();
         }
     }
 
     public void evaluateFitness() {
         for (Chromosome chromosome : chromosomes) {
+            // chromosome.itprints();
             chromosome.evaluateFitness();
         }
     }
@@ -103,13 +105,20 @@ public class Population {
 
         public Chromosome(YinYangPuzzle puzzle) {
             this.genes = new char[puzzle.getBoardSize()];
-            this.genes = puzzle.getBoard();
+            this.genes = Arrays.copyOf(puzzle.getBoard(), puzzle.getBoard().length);
             this.fitness = new Fitness(this);
         }
 
         public Chromosome(YinYangPuzzle puzzle, char[] genes) {
             this.genes = genes;
             this.fitness = new Fitness(this);
+        }
+
+        public void itprints(){
+            for(int i = 0 ; i< genes.length;i++){
+                System.out.print(genes[i]+" ");
+            }
+            System.out.println();
         }
 
         public void randomize() {
@@ -203,7 +212,7 @@ public class Population {
     
             // palculate total fitness
             value = -(bobotCP * checkerboardPenalty) - (bobotVP * violationPenalty) - (bobotIP * islandPenalty);
-            // System.out.println(value);
+            System.out.println(value);
             
         }
     
