@@ -5,7 +5,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         // ganti path sendiri
-        String filePath = "/Users/seba/Documents/hw/ai/Proyek_AI_Genetika/board2.txt";
+        String filePath = "/Users/seba/Documents/hw/ai/Proyek_AI_Genetika/board4.txt";
         init(filePath);
     }
 
