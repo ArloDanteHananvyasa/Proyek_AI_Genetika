@@ -2,19 +2,20 @@ public class GeneticSolution {
     private Population population;
 
     public GeneticSolution(YinYangPuzzle puzzle) {
-        this.population = new Population(100, puzzle); // population size
+        this.population = new Population(1000, puzzle); // population size
     }
 
     public void solve() {
         // init population
         population.generateInitialPopulation();
 
-        // Example of a genetic algorithm loop
-        for (int generation = 0; generation < 1; generation++) {
+        for (int generation = 0; generation < 200; generation++) {
+            System.out.printf("best chromosome of generation %s: \n", generation);
             population.evaluateFitness();
-            // population.selection();
-            // population.crossover();
-            // population.mutation();
+            population.tournamentSelection();
+            // population.rankSelection();
+            // population.rouletteWheelSelection();
+            population.crossover();
 
             if (population.hasSolution()) {
                 System.out.println("solution found in generation " + generation);

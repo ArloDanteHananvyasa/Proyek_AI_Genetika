@@ -4,11 +4,13 @@ public class Population {
     private int size;
     private List<Chromosome> chromosomes;
     private YinYangPuzzle puzzle;
+    private double bestFitness;
 
     public Population(int size, YinYangPuzzle puzzle) {
         this.size = size;
         this.puzzle = puzzle;
         this.chromosomes = new ArrayList<>();
+        this.bestFitness = Double.NEGATIVE_INFINITY;
     }
 
     public void generateInitialPopulation() {
@@ -21,15 +23,30 @@ public class Population {
     }
 
     public void evaluateFitness() {
+        Chromosome bestChromosome = null;
+        double highestFitness = Double.NEGATIVE_INFINITY;
+
         for (Chromosome chromosome : chromosomes) {
             // chromosome.itprints();
             chromosome.evaluateFitness();
+            if (chromosome.getFitnessValue() > highestFitness) {
+                highestFitness = chromosome.getFitnessValue(); // Update highest fitness value
+                bestChromosome = chromosome; // Update best chromosome
+            }
+        }
+        if (bestChromosome != null) {
+            bestChromosome.itprints();
+            System.out.println("Fitness: " + highestFitness);
+            System.out.println();
+        }
+        if (highestFitness > bestFitness) {
+            bestFitness = highestFitness;
         }
     }
 
-    public void selection() { // rank selection, select 50% dari populasi jadi parent
+    public void rankSelection() { //select 50% dari populasi jadi parent
 
-        chromosomes.sort((c1, c2) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue()));
+        chromosomes.sort((c2, c1) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue()));
 
         int[] ranks = new int[chromosomes.size()];
         for (int i = 0; i < chromosomes.size(); i++) {
@@ -57,13 +74,79 @@ public class Population {
         chromosomes = parents;
     }
 
-    public void crossover() {
+    public void simpleTournamentSelection() {
+        Random random = new Random();
+        List<Chromosome> parents = new ArrayList<>();
+        while (parents.size() < size / 5) {
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+            Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+            while (parent1 == parent2) {
+                parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+            }
+
+            Chromosome winner = (parent1.getFitnessValue() > parent2.getFitnessValue()) ? parent1 : parent2;
+            if (!parents.contains(winner)) {
+                parents.add(winner);
+            }
+        }
+        chromosomes = parents;
+    }
+
+    public void tournamentSelection() {
+        int tournamentSize = 4;
+        Random random = new Random();
+        List<Chromosome> selectedParents = new ArrayList<>();
+    
+        while (selectedParents.size() < size / 2) {
+            List<Chromosome> tournamentContestants = new ArrayList<>();
+            for (int i = 0; i < tournamentSize; i++) {
+                Chromosome contestant = chromosomes.get(random.nextInt(chromosomes.size()));
+                tournamentContestants.add(contestant);
+            }
+            
+            Chromosome best = tournamentContestants.stream()
+                    .max(Comparator.comparingDouble(Chromosome::getFitnessValue))
+                    .orElseThrow();
+            selectedParents.add(best);
+        }
+    
+        chromosomes = selectedParents;
+    }
+    
+    public void rouletteWheelSelection() {
+        double totalFitness = chromosomes.stream()
+                .mapToDouble(Chromosome::getFitnessValue)
+                .sum();
+    
+        List<Double> probabilities = new ArrayList<>();
+        for (Chromosome chromosome : chromosomes) {
+            probabilities.add(chromosome.getFitnessValue() / totalFitness);
+        }
+    
+        List<Chromosome> selectedParents = new ArrayList<>();
+        Random random = new Random();
+    
+        while (selectedParents.size() < size / 2) {
+            double r = random.nextDouble();
+            double cumulativeProbability = 0.0;
+    
+            for (int i = 0; i < chromosomes.size(); i++) {
+                cumulativeProbability += probabilities.get(i);
+                if (r <= cumulativeProbability) {
+                    selectedParents.add(chromosomes.get(i));
+                    break;
+                }
+            }
+        }
+        chromosomes = selectedParents;
+    }
+
+    public void crossover() { // single point
         Random random = new Random();
         while (chromosomes.size() < size) {
             Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
 
-            // mastiin ga sama
             while (parent1 == parent2) {
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
@@ -83,21 +166,32 @@ public class Population {
                 }
             }
 
+            mutateGenes(offspring1Genes, random);
+            mutateGenes(offspring2Genes, random);
+
             chromosomes.add(new Chromosome(puzzle, offspring1Genes));
             chromosomes.add(new Chromosome(puzzle, offspring2Genes));
         }
-
     }
 
-    public void mutation() {
+    // crossover lain...
 
+
+    // crossover lain...
+
+    private void mutateGenes(char[] genes, Random random) {
+        for (int i = 0; i < genes.length; i++) {
+            if (!puzzle.isLockedPosition(i)) {
+                if (random.nextDouble() < 0.01) {
+                    genes[i] = (genes[i] == 'W') ? 'B' : 'W';
+                }
+            }
+        }
     }
 
     public boolean hasSolution() {
-        return false;
+        return bestFitness == 0;
     }
-
-    
 
     class Chromosome {
         private char[] genes;
@@ -115,10 +209,12 @@ public class Population {
         }
 
         public void itprints(){
-            for(int i = 0 ; i< genes.length;i++){
-                System.out.print(genes[i]+" ");
+            for(int i = 0 ; i< 6;i++){
+                for (int j = 0 ; j< 6;j++) {
+                    System.out.print(genes[i * 6 + j]+" ");
+                }
+                System.out.println();
             }
-            System.out.println();
         }
 
         public void randomize() {
@@ -126,7 +222,6 @@ public class Population {
             for (int i = 0; i < this.genes.length; i++) {
                 if (!puzzle.isLockedPosition(i)) {
                     int randomChoice = rand.nextInt(2) + 1;
-                    System.out.printf("%d ", randomChoice);
                     if (randomChoice == 1) {
                         this.genes[i] = 'W';
                     } else {
@@ -136,7 +231,6 @@ public class Population {
                     // System.out.println(randomChoice);
                 }
             }
-            System.out.println();  
         }
 
         public void evaluateFitness() {
@@ -160,11 +254,11 @@ public class Population {
             char[] board = chromosome.genes;
             int size = (int) Math.sqrt(board.length);
             int checkerboardPenalty = 0;
-            int islandPenalty = 0;
             int violationPenalty = 0;
-            int bobotCP = 5;
-            int bobotVP = 10;
-            int bobotIP = 5;
+            int islandPenalty = 0;
+            int bobotCP = 1;
+            int bobotVP = 2;
+            int bobotIP = 3;
             
             // penalti checkerboard pattern
             for (int row = 0; row < size - 1; row++) {
@@ -183,12 +277,8 @@ public class Population {
                     if (current == right && current == below && current == diagonal) {
                         violationPenalty++;
                     }
-                    System.out.printf("%c ", current);
                 }
-                System.out.println();
             }
-            System.out.println();
-            System.out.println();
 
             // itung ada berapa island
             boolean[] visited = new boolean[board.length];
@@ -212,7 +302,7 @@ public class Population {
     
             // palculate total fitness
             value = -(bobotCP * checkerboardPenalty) - (bobotVP * violationPenalty) - (bobotIP * islandPenalty);
-            System.out.println(value);
+            // System.out.println(value);
             
         }
     
