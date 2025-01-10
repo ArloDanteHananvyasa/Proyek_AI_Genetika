@@ -176,13 +176,78 @@ public class Population {
 
     // crossover lain...
 
+    public void twoPointCrossover() {
+        Random random = new Random();
+        while (chromosomes.size() < size) {
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+            Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+    
+            while (parent1 == parent2) {
+                parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+            }
+    
+            int point1 = random.nextInt(parent1.genes.length);
+            int point2 = random.nextInt(parent1.genes.length);
+    
+            if (point1 > point2) {
+                int temp = point1;
+                point1 = point2;
+                point2 = temp;
+            }
+    
+            char[] offspring1Genes = parent1.genes.clone();
+            char[] offspring2Genes = parent2.genes.clone();
+    
+            for (int i = point1; i < point2; i++) {
+                offspring1Genes[i] = parent2.genes[i];
+                offspring2Genes[i] = parent1.genes[i];
+            }
+    
+            mutateGenes(offspring1Genes, random);
+            mutateGenes(offspring2Genes, random);
+    
+            chromosomes.add(new Chromosome(puzzle, offspring1Genes));
+            chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+        }
+    }
+
+    public void uniformCrossover() {
+        Random random = new Random();
+        while (chromosomes.size() < size) {
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+            Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+    
+            while (parent1 == parent2) {
+                parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
+            }
+    
+            char[] offspring1Genes = new char[parent1.genes.length];
+            char[] offspring2Genes = new char[parent2.genes.length];
+    
+            for (int i = 0; i < parent1.genes.length; i++) {
+                if (random.nextBoolean()) {
+                    offspring1Genes[i] = parent1.genes[i];
+                    offspring2Genes[i] = parent2.genes[i];
+                } else {
+                    offspring1Genes[i] = parent2.genes[i];
+                    offspring2Genes[i] = parent1.genes[i];
+                }
+            }
+    
+            mutateGenes(offspring1Genes, random);
+            mutateGenes(offspring2Genes, random);
+    
+            chromosomes.add(new Chromosome(puzzle, offspring1Genes));
+            chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+        }
+    }
 
     // crossover lain...
 
     private void mutateGenes(char[] genes, Random random) {
         for (int i = 0; i < genes.length; i++) {
             if (!puzzle.isLockedPosition(i)) {
-                if (random.nextDouble() < 0.01) {
+                if (random.nextDouble() < 0.05) {
                     genes[i] = (genes[i] == 'W') ? 'B' : 'W';
                 }
             }
@@ -209,9 +274,11 @@ public class Population {
         }
 
         public void itprints(){
-            for(int i = 0 ; i< 6;i++){
-                for (int j = 0 ; j< 6;j++) {
-                    System.out.print(genes[i * 6 + j]+" ");
+            double len = Math.sqrt(genes.length);
+            System.out.println(len);
+            for(int i = 0 ; i< len;i++){
+                for (int j = 0 ; j< len;j++) {
+                    System.out.print(genes[i * (int) len + j]+" ");
                 }
                 System.out.println();
             }
@@ -257,8 +324,8 @@ public class Population {
             int violationPenalty = 0;
             int islandPenalty = 0;
             int bobotCP = 1;
-            int bobotVP = 2;
-            int bobotIP = 3;
+            int bobotVP = 3;
+            int bobotIP = 2;
             
             // penalti checkerboard pattern
             for (int row = 0; row < size - 1; row++) {
