@@ -1,3 +1,5 @@
+package code;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -5,7 +7,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         // ganti path sendiri
-        String filePath = "/Users/seba/Documents/hw/ai/Proyek_AI_Genetika/board4.txt";
+        String filePath = "/F:/Campus Stuff/Codes/AI/YinYang/YinYang/board2.txt";
         init(filePath);
     }
 
@@ -38,7 +40,7 @@ public class Main {
                     board[i][j] = values[j].charAt(0);
                 }
             }
-             
+
             System.out.println("board size: " + size);
 
             // print board untuk cek
