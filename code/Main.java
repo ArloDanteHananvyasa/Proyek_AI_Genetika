@@ -1,14 +1,16 @@
 package code;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
         // ganti path sendiri
-        String filePath = "/C:/Users/seba/Documents/hw/ai2/Proyek_AI_Genetika/board7.txt";
+        String filePath = "/C:/Users/seba/Documents/hw/ai2/Proyek_AI_Genetika/board8.txt";
         int seed = 1234; //seed
         int populationSize = 5000;
         int generationSize = 200;
@@ -61,7 +63,13 @@ public class Main {
 
             YinYangPuzzle yyp = new YinYangPuzzle(board); //init puzzle
             GeneticSolution solution = new GeneticSolution(yyp, random, populationSize, generationSize); //init genetic solutionnya dengan random yang sudah memiliki seed
-            solution.solve();
+            String report = solution.solve();
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("/C:/Users/seba/Documents/hw/ai2/Proyek_AI_Genetika/solution.txt"))) {//menghasilkan output report file solution.txt
+                writer.write(report);//tambahkan report ke file
+            } catch (IOException e) {
+                System.out.println("Error writing to output file: " + e.getMessage());
+            }
 
         } catch (IOException e) { //output error baca file
             System.out.println(e.getMessage());
