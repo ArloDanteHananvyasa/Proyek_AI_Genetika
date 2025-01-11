@@ -7,12 +7,14 @@ public class Population {
     private List<Chromosome> chromosomes;
     private YinYangPuzzle puzzle;
     private double bestFitness;
+    private Random random;
 
-    public Population(int size, YinYangPuzzle puzzle) {
+    public Population(int size, YinYangPuzzle puzzle, Random random) {
         this.size = size;
         this.puzzle = puzzle;
         this.chromosomes = new ArrayList<>();
         this.bestFitness = Double.NEGATIVE_INFINITY;
+        this.random = random;
     }
 
     public List<Chromosome> getChromosomes() {
@@ -22,9 +24,8 @@ public class Population {
     public void generateInitialPopulation() {
         for (int i = 0; i < size; i++) {
             Chromosome chromosome = new Chromosome(puzzle);
-            chromosome.randomize();
+            chromosome.randomize(random);
             this.chromosomes.add(chromosome);
-            // chromosome.itprints();
         }
     }
 
@@ -33,7 +34,6 @@ public class Population {
         double highestFitness = Double.NEGATIVE_INFINITY;
 
         for (Chromosome chromosome : chromosomes) {
-            // chromosome.itprints();
             chromosome.evaluateFitness();
             if (chromosome.getFitnessValue() > highestFitness) {
                 highestFitness = chromosome.getFitnessValue(); // Update highest fitness value
@@ -42,128 +42,93 @@ public class Population {
         }
         if (bestChromosome != null) {
             bestChromosome.itprints();
-            System.out.println("Fitness: " + highestFitness);
-            System.out.println();
         }
         if (highestFitness > bestFitness) {
             bestFitness = highestFitness;
         }
     }
 
-    public void rankSelection() { // select 50% dari populasi jadi parent
+    public void rankSelection() { // rank selection untuk pemilihan parent
 
-        chromosomes.sort((c2, c1) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue()));
+        chromosomes.sort((c2, c1) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue())); //sort chromosome berdasarkan fitness valuenya
 
-        int[] ranks = new int[chromosomes.size()];
+        int[] ranks = new int[chromosomes.size()]; //buat ranking untuk population
         for (int i = 0; i < chromosomes.size(); i++) {
             ranks[i] = i + 1;
         }
 
-        int totalRankSum = Arrays.stream(ranks).sum();
+        int totalRankSum = Arrays.stream(ranks).sum(); //jumlahkan semua untuk rentang probabilitas
+        List<Chromosome> parents = new ArrayList<>(); //init parents yang akan dipilih
 
-        List<Chromosome> parents = new ArrayList<>();
-        Random random = new Random(12345);
-
-        while (parents.size() < size / 2) {
-
-            int randomValue = random.nextInt(totalRankSum) + 1;
-            int cumulativeSum = 0;
-
-            for (int i = 0; i < chromosomes.size(); i++) {
-                cumulativeSum += ranks[i];
-                if (cumulativeSum >= randomValue) {
-                    parents.add(chromosomes.get(i));
-                    break;
+        while (parents.size() < size / 2) { // pilih parents hingga ditemukan setengah dari banyak populasi (50% dari populasi sebagai parents)
+            int randomValue = random.nextInt(totalRankSum) + 1; // value di antara jumlah rank untuk pemilihan winner
+            int sum = 0;//total penambahan rank
+            for (int i = 0; i < chromosomes.size(); i++) { //iterasi dan cek setiap chromosome di population
+                sum += ranks[i]; //tambahkan ranking ke sum
+                if (sum >= randomValue) { // jika sum lebih besar dari randomValue maka chromosome ke i tersebut mennjadi parent (chromosome rank lebih tinggi lebih mungkin untuk dipillih, karena semakin mungkin tercakup random value)
+                    if (!parents.contains(chromosomes.get(i))) { // skip masukan parent ke parents jika sudah ada
+                        parents.add(chromosomes.get(i));
+                        break;
+                    }
                 }
             }
         }
         chromosomes = parents;
     }
 
-    public void simpleTournamentSelection() {
-        Random random = new Random(12345);
+    public void versusSelection() { // tourney selection, pilih 2 chromosome random kemudian bandingkan, pilih yang lebih baik jadi parent
         List<Chromosome> parents = new ArrayList<>();
-        while (parents.size() < size / 5) {
-            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+        while (parents.size() < size / 2) { // size / 2 karena 50% jadi parent
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size())); // pilih 2 chromosome random
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
-            while (parent1 == parent2) {
+            while (parent1 == parent2) {//jika kedua parent sama, loop hingga didapatkan yang berbeda
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            Chromosome winner = (parent1.getFitnessValue() > parent2.getFitnessValue()) ? parent1 : parent2;
-            if (!parents.contains(winner)) {
+            Chromosome winner = (parent1.getFitnessValue() > parent2.getFitnessValue()) ? parent1 : parent2; // pilih parent dengan fitness value lebih besar
+            if (!parents.contains(winner)) { // skip masukan parent ke parents jika sudah ada
                 parents.add(winner);
             }
         }
-        chromosomes = parents;
+        chromosomes = parents; // populasi sekarang menjadi parents
     }
 
-    public void tournamentSelection() {
-        int tournamentSize = 5; // ganti di sini -arlo (tadinya 4)
-        Random random = new Random(12345);
-        List<Chromosome> selectedParents = new ArrayList<>();
+    public void simpleTournamentSelection() {
+        int tournamentSize = 5; // banyak crhomosome per bracket tourney
+        List<Chromosome> parents = new ArrayList<>();
 
-        while (selectedParents.size() < size / 2) {
-            List<Chromosome> tournamentContestants = new ArrayList<>();
-            for (int i = 0; i < tournamentSize; i++) {
-                Chromosome contestant = chromosomes.get(random.nextInt(chromosomes.size()));
-                tournamentContestants.add(contestant);
-            }
-
-            Chromosome best = tournamentContestants.stream()
-                    .max(Comparator.comparingDouble(Chromosome::getFitnessValue))
-                    .orElseThrow();
-            selectedParents.add(best);
-        }
-
-        chromosomes = selectedParents;
-    }
-
-    public void rouletteWheelSelection() {
-        double totalFitness = chromosomes.stream()
-                .mapToDouble(Chromosome::getFitnessValue)
-                .sum();
-
-        List<Double> probabilities = new ArrayList<>();
-        for (Chromosome chromosome : chromosomes) {
-            probabilities.add(chromosome.getFitnessValue() / totalFitness);
-        }
-
-        List<Chromosome> selectedParents = new ArrayList<>();
-        Random random = new Random(12345);
-
-        while (selectedParents.size() < size / 2) {
-            double r = random.nextDouble();
-            double cumulativeProbability = 0.0;
-
-            for (int i = 0; i < chromosomes.size(); i++) {
-                cumulativeProbability += probabilities.get(i);
-                if (r <= cumulativeProbability) {
-                    selectedParents.add(chromosomes.get(i));
-                    break;
+        while (parents.size() < size / 2) {// size / 2 karena 50% jadi parent
+            List<Chromosome> contestants = new ArrayList<>();// chromosome per bracket
+            while (contestants.size() < tournamentSize) { //tambahkan crhomosome sbyk tourney size ke contestants
+                Chromosome contestant = chromosomes.get(random.nextInt(chromosomes.size())); // pilih random
+                if (!contestants.contains(contestant)) {//skip jika sebelumnnya sudah dimasukkan
+                    contestants.add(contestant);
                 }
             }
+            Chromosome winner = contestants.stream().max(Comparator.comparingDouble(Chromosome::getFitnessValue)).orElseThrow(); //pilih pemenang dari bracket tourney
+            if (!parents.contains(winner)) { // skip masukan parent ke parents jika sudah ada
+                parents.add(winner);
+            }
         }
-        chromosomes = selectedParents;
+        chromosomes = parents;// populasi sekarang menjadi parents
     }
 
-    public void crossover() { // single point
-        Random random = new Random(12345);
-        while (chromosomes.size() < size) {
-            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+    public void singlePointCrossover() { // single point crossover
+        while (chromosomes.size() < size) { //tambahkan hasil crossover ke population hingga penuh
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size())); //pilih 2 parent random (dari hasil selection sebelumnya)
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
 
-            while (parent1 == parent2) {
+            while (parent1 == parent2) { //jika kedua parent sama, loop hingga didapatkan yang berbeda
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            int crossoverPoint = random.nextInt(parent1.genes.length);
+            int crossoverPoint = random.nextInt(parent1.genes.length); //randomize crossover point
 
-            char[] offspring1Genes = new char[parent1.genes.length];
+            char[] offspring1Genes = new char[parent1.genes.length]; //init offspring
             char[] offspring2Genes = new char[parent2.genes.length];
 
-            for (int i = 0; i < parent1.genes.length; i++) {
-                if (i < crossoverPoint) {
+            for (int i = 0; i < parent1.genes.length; i++) {//masukan alele parent ke gene offpsring
+                if (i < crossoverPoint) { //crossover point sebagai penanda untuk tukar parent
                     offspring1Genes[i] = parent1.genes[i];
                     offspring2Genes[i] = parent2.genes[i];
                 } else {
@@ -172,66 +137,74 @@ public class Population {
                 }
             }
 
-            mutateGenes(offspring1Genes, random);
-            mutateGenes(offspring2Genes, random);
+            mutateGenes(offspring1Genes); //mutasi gene
+            mutateGenes(offspring2Genes);
 
-            chromosomes.add(new Chromosome(puzzle, offspring1Genes));
+            chromosomes.add(new Chromosome(puzzle, offspring1Genes)); //tambahkan offspring ke population
             chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+        }
+
+        while (chromosomes.size() > size) { //hapus offspring berlebih (karena hasil / 2 dari metode selection parent bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
+            chromosomes.remove(chromosomes.size() - 1);
         }
     }
 
-    // crossover lain...
-
     public void twoPointCrossover() {
-        Random random = new Random(12345);
-        while (chromosomes.size() < size) {
-            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+        while (chromosomes.size() < size) {//tambahkan hasil crossover ke population hingga penuh
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));//pilih 2 parent random (dari hasil selection sebelumnya)
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
 
-            while (parent1 == parent2) {
+            while (parent1 == parent2) {//parent tidak boleh sama
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            int point1 = random.nextInt(parent1.genes.length);
+            int point1 = random.nextInt(parent1.genes.length);//ambil 2 point ramdom utk crossover
             int point2 = random.nextInt(parent1.genes.length);
 
-            if (point1 > point2) {
+            while (point1 == point2) {//point tidak boleh sama
+                point2 = random.nextInt(parent1.genes.length);
+            }
+
+            if (point1 > point2) {//tukar point 1 dan 2 jika p1 lebih besar (point 2 selalu lebih besar)
                 int temp = point1;
                 point1 = point2;
                 point2 = temp;
             }
 
-            char[] offspring1Genes = parent1.genes.clone();
+            char[] offspring1Genes = parent1.genes.clone();//clone gene parent ke offspring untuk mengcopy agar tidak ikut terubah saat dimodifikasi
             char[] offspring2Genes = parent2.genes.clone();
 
             for (int i = point1; i < point2; i++) {
-                offspring1Genes[i] = parent2.genes[i];
+                offspring1Genes[i] = parent2.genes[i];//ganti alele antara crossover point 1 dan 2 menjadi milik parent yang lain
                 offspring2Genes[i] = parent1.genes[i];
             }
 
-            mutateGenes(offspring1Genes, random);
-            mutateGenes(offspring2Genes, random);
+            mutateGenes(offspring1Genes);//mutasi
+            mutateGenes(offspring2Genes);
 
-            chromosomes.add(new Chromosome(puzzle, offspring1Genes));
+            chromosomes.add(new Chromosome(puzzle, offspring1Genes));//tambahkan offspring ke population
             chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+        }
+
+        while (chromosomes.size() > size) { //hapus offspring berlebih (karena hasil / 2 dari metode selection parent bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
+            chromosomes.remove(chromosomes.size() - 1);
         }
     }
 
     public void uniformCrossover() {
-        Random random = new Random(12345);
-        while (chromosomes.size() < size) {
-            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));
+        while (chromosomes.size() < size) {//tambahkan hasil crossover ke population hingga penuh
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));//pilih 2 parent random (dari hasil selection sebelumnya)
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
 
-            while (parent1 == parent2) {
+            while (parent1 == parent2) {//parent tidak boleh sama
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            char[] offspring1Genes = new char[parent1.genes.length];
+            char[] offspring1Genes = new char[parent1.genes.length];//init offspring
             char[] offspring2Genes = new char[parent2.genes.length];
 
-            for (int i = 0; i < parent1.genes.length; i++) {
-                if (random.nextBoolean()) {
+            for (int i = 0; i < parent1.genes.length; i++) {//masukan alele parent ke gene offpsring
+                if (random.nextBoolean()) {//masukkan alele dari parents, 50% kemungkinan alele itu berasal dari salah satu parent
                     offspring1Genes[i] = parent1.genes[i];
                     offspring2Genes[i] = parent2.genes[i];
                 } else {
@@ -240,28 +213,26 @@ public class Population {
                 }
             }
 
-            mutateGenes(offspring1Genes, random);
-            mutateGenes(offspring2Genes, random);
+            mutateGenes(offspring1Genes);//mutasi gene
+            mutateGenes(offspring2Genes);
 
-            chromosomes.add(new Chromosome(puzzle, offspring1Genes));
+            chromosomes.add(new Chromosome(puzzle, offspring1Genes));//tambahkan offspring ke population
             chromosomes.add(new Chromosome(puzzle, offspring2Genes));
         }
     }
 
-    // crossover lain...
-
-    public void mutateGenes(char[] genes, Random random) {
-        for (int i = 0; i < genes.length; i++) {
-            if (!puzzle.isLockedPosition(i)) {
-                if (random.nextDouble() < 0.03) { // gw ganti (tadinya 0.05)
-                    genes[i] = (genes[i] == 'W') ? 'B' : 'W';
+    public void mutateGenes(char[] genes) { //mutasi gene
+        for (int i = 0; i < genes.length; i++) { //iterasi setiap gene
+            if (!puzzle.isLockedPosition(i)) {//jika bukan posisi awal puzzle dan dapat diubah
+                if (random.nextDouble() < 0.01) { //mutasi dengan probabilitas 1%
+                    genes[i] = (genes[i] == 'W') ? 'B' : 'W'; //ubah menjadi sebaliknya
                 }
             }
         }
     }
 
-    public boolean hasSolution() {
-        return bestFitness == 0;
+    public boolean hasSolution() {//check apakah ditemukan solusi di population
+        return bestFitness == 0; //true jika bestfitness = 0
     }
 
     public class Chromosome {
@@ -285,20 +256,22 @@ public class Population {
 
         public void itprints() {
             double len = Math.sqrt(genes.length);
-            System.out.println(len);
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++) {
-                    System.out.print(genes[i * (int) len + j] + " ");
+                    if (genes[i * (int) len + j] == 'W')
+                        System.out.print("O ");
+                    else
+                        System.out.print(". ");
+                    // System.out.print(genes[i * (int) len + j] + " "); //ganti print menjadi . dan O untuk memperjelas board
                 }
                 System.out.println();
             }
         }
 
-        public void randomize() {
-            Random rand = new Random(12345);
+        public void randomize(Random random) {
             for (int i = 0; i < this.genes.length; i++) {
                 if (!puzzle.isLockedPosition(i)) {
-                    int randomChoice = rand.nextInt(2) + 1;
+                    int randomChoice = random.nextInt(2) + 1;
                     if (randomChoice == 1) {
                         this.genes[i] = 'W';
                     } else {
@@ -335,9 +308,9 @@ public class Population {
             int violationPenalty = 0;
             int islandPenalty = 0;
 
-            int bobotCP = 3;
-            int bobotVP = 6;
-            int bobotIP = 4;
+            int bobotCP = 1;
+            int bobotVP = 2;
+            int bobotIP = 3;
 
             // Combined loop for 2x2 blocks and checkerboard patterns
             for (int row = 0; row < size - 1; row++) {

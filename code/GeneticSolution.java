@@ -6,9 +6,11 @@ import code.Population.Chromosome;
 
 public class GeneticSolution {
     private Population population;
+    private int generationSize;
 
-    public GeneticSolution(YinYangPuzzle puzzle) {
-        this.population = new Population(5000, puzzle); // population size
+    public GeneticSolution(YinYangPuzzle puzzle, Random random, int populationSize, int generationSize) { //init genetic solution
+        this.population = new Population(populationSize, puzzle, random);
+        this.generationSize = generationSize;
     }
 
     public void solve() {
@@ -18,24 +20,27 @@ public class GeneticSolution {
         int noImprovementCount = 0;
         double lastBestFitness = Double.NEGATIVE_INFINITY;
         double bestFitness = Double.NEGATIVE_INFINITY;
-        Chromosome bestChromosome = null;
 
-        for (int generation = 0; generation < 500; generation++) {
+        for (int generation = 0; generation < generationSize; generation++) {
             // Evaluate the fitness of the current population
             population.evaluateFitness();
 
             // Find the best chromosome in the current population
             for (Chromosome chromosome : population.getChromosomes()) {
                 if (chromosome.getFitnessValue() > bestFitness) {
-                    Random random = new Random(12345);
-                    population.mutateGenes(chromosome.getGenes(), random);
+                    population.mutateGenes(chromosome.getGenes());
                     bestFitness = chromosome.getFitnessValue();
-                    bestChromosome = chromosome;
                 }
             }
 
             // Log the best fitness value for monitoring
             System.out.println("Generation " + generation + ": Best Fitness = " + bestFitness);
+            System.out.println();
+
+            if (population.hasSolution()) { //jika ditemukan best solution, hentikan
+                System.out.printf("Best solution found.\n\n");
+                break;
+            }
 
             // Check for improvement
             if (bestFitness == lastBestFitness) {
@@ -48,20 +53,13 @@ public class GeneticSolution {
             // Stop if no improvement for 50 generations
             if (noImprovementCount >= 50) {
                 System.out.println("Stopping early due to no improvement for 50 generations.");
+                System.out.println();
                 break;
             }
 
-            // Perform selection, crossover, and mutation
-            population.tournamentSelection();
+            // Perform selection, crossover
+            population.simpleTournamentSelection();
             population.twoPointCrossover();
-        }
-
-        // Output the best solution found
-        if (bestChromosome != null) {
-            System.out.println("Best Solution Found:");
-            bestChromosome.itprints();
-        } else {
-            System.out.println("No solution found.");
         }
     }
 }
