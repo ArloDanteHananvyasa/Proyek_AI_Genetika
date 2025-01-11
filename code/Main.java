@@ -10,9 +10,9 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) {
         // ganti path sendiri
-        String filePath = "/C:/Users/seba/Documents/hw/ai2/Proyek_AI_Genetika/board8.txt";
-        int seed = 1234; //seed
-        int populationSize = 5000;
+        String filePath = "/C:/Users/seba/Documents/hw/ai2/Proyek_AI_Genetika/board10x10easy.txt";
+        int seed = 100; //seed
+        int populationSize = 2000;
         int generationSize = 200;
         double elitism = 0.5;
         init(filePath, seed, populationSize, generationSize, elitism);
