@@ -14,10 +14,11 @@ public class Main {
         int seed = 1234; //seed
         int populationSize = 5000;
         int generationSize = 200;
-        init(filePath, seed, populationSize, generationSize);
+        double elitism = 0.5;
+        init(filePath, seed, populationSize, generationSize, elitism);
     }
 
-    private static void init(String filePath, int seed, int populationSize, int generationSize) {
+    private static void init(String filePath, int seed, int populationSize, int generationSize, double elitism) {
 
         char[][] board;
         Random random = new Random(seed);
@@ -62,7 +63,7 @@ public class Main {
             System.out.println();
 
             YinYangPuzzle yyp = new YinYangPuzzle(board); //init puzzle
-            GeneticSolution solution = new GeneticSolution(yyp, random, populationSize, generationSize); //init genetic solutionnya dengan random yang sudah memiliki seed
+            GeneticSolution solution = new GeneticSolution(yyp, random, populationSize, generationSize, elitism); //init genetic solutionnya dengan random yang sudah memiliki seed
             String report = solution.solve();
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("/C:/Users/seba/Documents/hw/ai2/Proyek_AI_Genetika/solution.txt"))) {//menghasilkan output report file solution.txt
