@@ -13,17 +13,22 @@ public class GeneticSolution {
         this.generationSize = generationSize;
     }
 
-    public void solve() {
+    public String solve() {
+        String report = "";
         // Initialize the population
         population.generateInitialPopulation();
 
+        int lastGeneration = 0; //last gen untuk report
+        String lastBoard = ""; //lastboard untuk report
         int noImprovementCount = 0;
         double lastBestFitness = Double.NEGATIVE_INFINITY;
         double bestFitness = Double.NEGATIVE_INFINITY;
 
         for (int generation = 0; generation < generationSize; generation++) {
+            lastGeneration = generation;
             // Evaluate the fitness of the current population
-            population.evaluateFitness();
+            String board = population.evaluateFitness();
+            lastBoard = board;
 
             // Find the best chromosome in the current population
             for (Chromosome chromosome : population.getChromosomes()) {
@@ -38,6 +43,7 @@ public class GeneticSolution {
             System.out.println();
 
             if (population.hasSolution()) { //jika ditemukan best solution, hentikan
+                report += "Best solution found.\n";
                 System.out.printf("Best solution found.\n\n");
                 break;
             }
@@ -52,6 +58,7 @@ public class GeneticSolution {
 
             // Stop if no improvement for 50 generations
             if (noImprovementCount >= 50) {
+                report += "Stopped early due to no improvement for 50 generations.\n";
                 System.out.println("Stopping early due to no improvement for 50 generations.");
                 System.out.println();
                 break;
@@ -61,5 +68,9 @@ public class GeneticSolution {
             population.simpleTournamentSelection();
             population.twoPointCrossover();
         }
+        //tambahkan board, generation, dan fitness terakhir ke report file
+        report += lastBoard;
+        report += "Generation " + lastGeneration + ": Best Fitness = " + bestFitness;
+        return report;
     }
 }

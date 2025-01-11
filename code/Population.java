@@ -29,7 +29,8 @@ public class Population {
         }
     }
 
-    public void evaluateFitness() {
+    public String evaluateFitness() {
+        String board = "";
         Chromosome bestChromosome = null;
         double highestFitness = Double.NEGATIVE_INFINITY;
 
@@ -41,11 +42,12 @@ public class Population {
             }
         }
         if (bestChromosome != null) {
-            bestChromosome.itprints();
+            board = bestChromosome.itprints();
         }
         if (highestFitness > bestFitness) {
             bestFitness = highestFitness;
         }
+        return board;
     }
 
     public void rankSelection() { // rank selection untuk pemilihan parent
@@ -258,18 +260,21 @@ public class Population {
             return genes;
         }
 
-        public void itprints() {
+        public String itprints() {
+            String board = "";
             double len = Math.sqrt(genes.length);
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++) {
                     if (genes[i * (int) len + j] == 'W')
-                        System.out.print("O ");
+                        System.out.print("O ");  //ganti print menjadi . dan O untuk memperjelas board
                     else
                         System.out.print(". ");
-                    // System.out.print(genes[i * (int) len + j] + " "); //ganti print menjadi . dan O untuk memperjelas board
+                    board += genes[i * (int) len + j] + " ";
                 }
+                board += "\n";
                 System.out.println();
             }
+            return board;
         }
 
         public void randomize(Random random) {
