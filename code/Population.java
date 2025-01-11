@@ -240,88 +240,94 @@ public class Population {
     public boolean hasSolution() {//check apakah ditemukan solusi di population
         return bestFitness == 0; //true jika bestfitness = 0
     }
-
+    // Kelas yang merepresentasikan sebuah Chromosome dalam algoritma genetika
     public class Chromosome {
-        private char[] genes;
-        private Fitness fitness;
+        private char[] genes; // Array gen yang merepresentasikan solusi puzzle
+        private Fitness fitness; // Objek Fitness untuk menilai kualitas solusi (chromosome)
 
+        // Konstruktor untuk membuat Chromosome berdasarkan puzzle YinYang
         public Chromosome(YinYangPuzzle puzzle) {
-            this.genes = new char[puzzle.getBoardSize()];
-            this.genes = Arrays.copyOf(puzzle.getBoard(), puzzle.getBoard().length);
-            this.fitness = new Fitness(this);
+            this.genes = new char[puzzle.getBoardSize()]; // Inisialisasi array gen dengan ukuran papan
+            this.genes = Arrays.copyOf(puzzle.getBoard(), puzzle.getBoard().length); // Salin data papan dari puzzle
+            this.fitness = new Fitness(this); // Hitung fitness untuk chromosome ini
         }
 
+        // Konstruktor untuk membuat Chromosome berdasarkan puzzle dan gen yang diberikan
         public Chromosome(YinYangPuzzle puzzle, char[] genes) {
-            this.genes = genes;
-            this.fitness = new Fitness(this);
+            this.genes = genes; // Gunakan array gen yang diberikan
+            this.fitness = new Fitness(this); // Hitung fitness untuk chromosome ini
         }
 
         public char[] getGenes() {
             return genes;
         }
 
+        // Metode untuk mencetak representasi papan puzzle
         public String itprints() {
-            String board = "";
-            double len = Math.sqrt(genes.length);
+            String board = ""; // String untuk menyimpan representasi papan
+            double len = Math.sqrt(genes.length); // Panjang sisi papan (diasumsikan berbentuk persegi)
             for (int i = 0; i < len; i++) {
                 for (int j = 0; j < len; j++) {
-                    if (genes[i * (int) len + j] == 'W')
-                        System.out.print("O ");  //ganti print menjadi . dan O untuk memperjelas board
-                    else
-                        System.out.print(". ");
-                    board += genes[i * (int) len + j] + " ";
+                    if (genes[i * (int) len + j] == 'W') {
+                        System.out.print("O "); // Cetak "O" untuk warna putih
+                    } else {
+                        System.out.print(". "); // Cetak "." untuk warna hitam
+                    }
+                    board += genes[i * (int) len + j] + " "; // Tambahkan gen ke string board
                 }
-                board += "\n";
-                System.out.println();
+                board += "\n"; // Tambahkan baris baru di akhir setiap baris
+                System.out.println(); // Cetak baris baru untuk output konsol
             }
-            return board;
+            return board; // Kembalikan representasi papan sebagai string
         }
 
+        // Metode untuk mengacak gen di posisi yang tidak terkunci
         public void randomize(Random random) {
             for (int i = 0; i < this.genes.length; i++) {
-                if (!puzzle.isLockedPosition(i)) {
-                    int randomChoice = random.nextInt(2) + 1;
+                if (!puzzle.isLockedPosition(i)) { // Periksa apakah posisi tidak terkunci
+                    int randomChoice = random.nextInt(2) + 1; // Pilih angka acak antara 1 dan 2
                     if (randomChoice == 1) {
-                        this.genes[i] = 'W';
+                        this.genes[i] = 'W'; // Tetapkan warna putih jika randomChoice == 1
                     } else {
-                        this.genes[i] = 'B';
+                        this.genes[i] = 'B'; // Tetapkan warna hitam jika randomChoice != 1
                     }
-                    // this.genes[i] = (randomChoice == 1) ? 'W' : 'B';
-                    // System.out.println(randomChoice);
                 }
             }
         }
 
+        // Metode untuk mengevaluasi ulang fitness dari chromosome ini
         public void evaluateFitness() {
             this.fitness.calculate();
         }
 
+        // Getter untuk mengembalikan nilai fitness dari chromosome
         public double getFitnessValue() {
             return fitness.getValue();
         }
     }
 
+    //kelas yang merepresentasikan nilai Fitness dari chromosome tertentu
     class Fitness {
         private double value;
         private Chromosome chromosome;
 
         public Fitness(Chromosome chromosome) {
             this.chromosome = chromosome;
-            this.value = calculate(); // Calculate fitness immediately upon initialization
+            this.value = calculate(); // menghitung fitness langsung setelah insialisasi
         }
 
         public double calculate() {
-            char[] board = chromosome.genes;
-            int size = (int) Math.sqrt(board.length);
-            int checkerboardPenalty = 0;
-            int violationPenalty = 0;
-            int islandPenalty = 0;
+            char[] board = chromosome.genes; // gen chromosome yang merepresentasikan papan
+            int size = (int) Math.sqrt(board.length); // ukuran sisi papan (asumsi papan berbentuk persegi)
+            int checkerboardPenalty = 0; // penalti untuk pola checkerboard
+            int violationPenalty = 0; // penalti untuk blok 2x2 dengan warna yang sama
+            int islandPenalty = 0; // penalti untuk jumlah pulau yang berlebihan
 
-            int bobotCP = 1;
-            int bobotVP = 2;
-            int bobotIP = 3;
+            int bobotCP = 1; // bobot penalti untuk pola checkerboard
+            int bobotVP = 2; // bobot penalti untuk blok 2x2
+            int bobotIP = 3; // bobot penalti untuk jumlah pulau
 
-            // Combined loop for 2x2 blocks and checkerboard patterns
+            // loop untuk memeriksa blok 2x2 dan pola checkerboard
             for (int row = 0; row < size - 1; row++) {
                 for (int col = 0; col < size - 1; col++) {
                     char current = board[row * size + col];
@@ -329,12 +335,12 @@ public class Population {
                     char below = board[(row + 1) * size + col];
                     char diagonal = board[(row + 1) * size + col + 1];
 
-                    // Penalize 2x2 blocks of the same color
+                    // Tambahkan penalti jika ditemukan blok 2x2 dengan warna yang sama (notes: pola checkerboard melanggar aturan permainan)
                     if (current == right && current == below && current == diagonal) {
                         violationPenalty++;
                     }
 
-                    // Penalize checkerboard patterns
+                    // Tambahkan penalti untuk pola checkerboard tertentu (notes: pada permainan apabila ditemukan pola checkerboard dalam puzzle, puzzle tersebut mustahil untuk ditemukan solusinya)
                     if ((current == 'W' && right == 'B' && below == 'B' && diagonal == 'W') ||
                             (current == 'B' && right == 'W' && below == 'W' && diagonal == 'B')) {
                         checkerboardPenalty++;
@@ -342,17 +348,18 @@ public class Population {
                 }
             }
 
-            // Use Union-Find to count islands
+            // Gunakan Union-Find untuk menghitung jumlah pulau
             UnionFind uf = new UnionFind(board.length);
             for (int i = 0; i < board.length; i++) {
                 if (i % size != size - 1 && board[i] == board[i + 1]) {
-                    uf.union(i, i + 1); // Union with right neighbor
+                    uf.union(i, i + 1); // hubungkan dengan tetangga kanan
                 }
                 if (i < board.length - size && board[i] == board[i + size]) {
-                    uf.union(i, i + size); // Union with bottom neighbor
+                    uf.union(i, i + size); // hubungkan dengan tetangga bawah
                 }
             }
 
+            // Hitung jumlah pulau untuk setiap warna
             int whiteIslands = 0, blackIslands = 0;
             for (int i = 0; i < board.length; i++) {
                 if (board[i] == 'W' && uf.find(i) == i) {
@@ -362,11 +369,11 @@ public class Population {
                 }
             }
 
-            // Penalize excess islands
+            // Tambahkan penalti untuk jumlah pulau yang melebihi 1 (notes : seharusnya kalau merupakan solusi, hanya ada 1 buah pulai untuk masing-masing warna)
             islandPenalty = (whiteIslands > 1 ? whiteIslands - 1 : 0) +
                     (blackIslands > 1 ? blackIslands - 1 : 0);
 
-            // Calculate total fitness
+            // Hitung total fitness (semakin negatif semakin buruk)
             return -(bobotCP * checkerboardPenalty) - (bobotVP * violationPenalty) - (bobotIP * islandPenalty);
         }
 
@@ -374,23 +381,23 @@ public class Population {
             return value;
         }
 
-        // Union-Find data structure for efficient island counting
+        // Kelas Union-Find untuk menghitung jumlah pulau dengan efisien
         private static class UnionFind {
-            private int[] parent;
-            private int[] rank;
+            private int[] parent; // array untuk merepresentasikan parent dari setiap elemen
+            private int[] rank; // array untuk menyimpan ranking (kedalaman pohon)
 
             public UnionFind(int size) {
-                parent = new int[size];
-                rank = new int[size];
+                parent = new int[size]; // inisialisasi parent untuk setiap elemen
+                rank = new int[size]; // inisialisasi rank ke 0
                 for (int i = 0; i < size; i++) {
-                    parent[i] = i; // Each element is its own parent
-                    rank[i] = 0; // Initial rank is zero
+                    parent[i] = i; // setiap elemen adalah parent dari dirinya sendiri
+                    rank[i] = 0; // rank awal adalah nol
                 }
             }
 
             public int find(int p) {
                 if (parent[p] != p) {
-                    parent[p] = find(parent[p]); // Path compression
+                    parent[p] = find(parent[p]); // path compression untuk optimisasi
                 }
                 return parent[p];
             }
@@ -399,7 +406,7 @@ public class Population {
                 int rootP = find(p);
                 int rootQ = find(q);
                 if (rootP != rootQ) {
-                    // Union by rank
+                    // Gabungkan berdasarkan rank
                     if (rank[rootP] < rank[rootQ]) {
                         parent[rootP] = rootQ;
                     } else if (rank[rootP] > rank[rootQ]) {
