@@ -219,6 +219,10 @@ public class Population {
             chromosomes.add(new Chromosome(puzzle, offspring1Genes));//tambahkan offspring ke population
             chromosomes.add(new Chromosome(puzzle, offspring2Genes));
         }
+
+        while (chromosomes.size() > size) { //hapus offspring berlebih (karena hasil / 2 dari metode selection parent bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
+            chromosomes.remove(chromosomes.size() - 1);
+        }
     }
 
     public void mutateGenes(char[] genes) { //mutasi gene
