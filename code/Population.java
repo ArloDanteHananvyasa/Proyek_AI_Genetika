@@ -50,7 +50,7 @@ public class Population {
         return board;
     }
 
-    public void rankSelection() { // rank selection untuk pemilihan parent
+    public void rankSelection(double elitism) { // rank selection untuk pemilihan parent
 
         chromosomes.sort((c2, c1) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue())); //sort chromosome berdasarkan fitness valuenya
 
@@ -62,7 +62,7 @@ public class Population {
         int totalRankSum = Arrays.stream(ranks).sum(); //jumlahkan semua untuk rentang probabilitas
         List<Chromosome> parents = new ArrayList<>(); //init parents yang akan dipilih
 
-        while (parents.size() < size / 2) { // pilih parents hingga ditemukan setengah dari banyak populasi (50% dari populasi sebagai parents)
+        while (parents.size() < size * elitism) { // pilih parents hingga ditemukan sesuai dengan elitism rate (karena semua parent masuk ke gen berikutnya)
             int randomValue = random.nextInt(totalRankSum) + 1; // value di antara jumlah rank untuk pemilihan winner
             int sum = 0;//total penambahan rank
             for (int i = 0; i < chromosomes.size(); i++) { //iterasi dan cek setiap chromosome di population
@@ -78,9 +78,9 @@ public class Population {
         chromosomes = parents;
     }
 
-    public void versusSelection() { // tourney selection, pilih 2 chromosome random kemudian bandingkan, pilih yang lebih baik jadi parent
+    public void versusSelection(double elitism) { // tourney selection, pilih 2 chromosome random kemudian bandingkan, pilih yang lebih baik jadi parent
         List<Chromosome> parents = new ArrayList<>();
-        while (parents.size() < size / 2) { // size / 2 karena 50% jadi parent
+        while (parents.size() < size * elitism) { // pilih parents hingga ditemukan sesuai dengan elitism rate (karena semua parent masuk ke gen berikutnya)
             Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size())); // pilih 2 chromosome random
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             while (parent1 == parent2) {//jika kedua parent sama, loop hingga didapatkan yang berbeda
@@ -95,11 +95,11 @@ public class Population {
         chromosomes = parents; // populasi sekarang menjadi parents
     }
 
-    public void simpleTournamentSelection() {
+    public void simpleTournamentSelection(double elitism) {
         int tournamentSize = 5; // banyak crhomosome per bracket tourney
         List<Chromosome> parents = new ArrayList<>();
 
-        while (parents.size() < size / 2) {// size / 2 karena 50% jadi parent
+        while (parents.size() < size * elitism) {// size / 2 karena 50% jadi parent
             List<Chromosome> contestants = new ArrayList<>();// chromosome per bracket
             while (contestants.size() < tournamentSize) { //tambahkan crhomosome sbyk tourney size ke contestants
                 Chromosome contestant = chromosomes.get(random.nextInt(chromosomes.size())); // pilih random

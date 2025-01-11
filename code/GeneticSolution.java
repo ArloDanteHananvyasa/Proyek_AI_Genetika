@@ -7,10 +7,12 @@ import code.Population.Chromosome;
 public class GeneticSolution {
     private Population population;
     private int generationSize;
+    private double elitism;
 
-    public GeneticSolution(YinYangPuzzle puzzle, Random random, int populationSize, int generationSize) { //init genetic solution
+    public GeneticSolution(YinYangPuzzle puzzle, Random random, int populationSize, int generationSize, double elitism) { //init genetic solution
         this.population = new Population(populationSize, puzzle, random);
         this.generationSize = generationSize;
+        this.elitism = elitism;
     }
 
     public String solve() {
@@ -65,7 +67,7 @@ public class GeneticSolution {
             }
 
             // Perform selection, crossover
-            population.simpleTournamentSelection();
+            population.simpleTournamentSelection(elitism);
             population.twoPointCrossover();
         }
         //tambahkan board, generation, dan fitness terakhir ke report file
