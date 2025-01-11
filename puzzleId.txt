@@ -15,6 +15,7 @@
 2. 
 
 10x10 Normal Yin-Yang Puzzle ID:
+1. 5,788,355
 
 10x10 Hard Yin-Yang Puzzle ID:
 

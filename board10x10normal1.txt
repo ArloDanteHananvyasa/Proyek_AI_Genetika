@@ -1,1 +1,10 @@
-bantu isi + jan lupa tulis id nya di puzzleid.txt
+W . . . . . . . . . 
+. . . B B B B B . . 
+. W B . . . . . . . 
+. W . B . B . . . . 
+. W B . B . . B . .
+. W B . . B . . . . 
+. W B . B . B . Bx .
+W . B . . . B . . .
+. . . B . B . B . .
+. . . . . . . . . .
