@@ -52,22 +52,27 @@ public class Population {
 
     public void rankSelection(double elitism) { // rank selection untuk pemilihan parent
 
-        chromosomes.sort((c2, c1) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue())); //sort chromosome berdasarkan fitness valuenya
+        chromosomes.sort((c2, c1) -> Double.compare(c2.getFitnessValue(), c1.getFitnessValue())); // sort chromosome
+                                                                                                  // berdasarkan fitness
+                                                                                                  // valuenya
 
-        int[] ranks = new int[chromosomes.size()]; //buat ranking untuk population
+        int[] ranks = new int[chromosomes.size()]; // buat ranking untuk population
         for (int i = 0; i < chromosomes.size(); i++) {
             ranks[i] = i + 1;
         }
 
-        int totalRankSum = Arrays.stream(ranks).sum(); //jumlahkan semua untuk rentang probabilitas
-        List<Chromosome> parents = new ArrayList<>(); //init parents yang akan dipilih
+        int totalRankSum = Arrays.stream(ranks).sum(); // jumlahkan semua untuk rentang probabilitas
+        List<Chromosome> parents = new ArrayList<>(); // init parents yang akan dipilih
 
-        while (parents.size() < size * elitism) { // pilih parents hingga ditemukan sesuai dengan elitism rate (karena semua parent masuk ke gen berikutnya)
+        while (parents.size() < size * elitism) { // pilih parents hingga ditemukan sesuai dengan elitism rate (karena
+                                                  // semua parent masuk ke gen berikutnya)
             int randomValue = random.nextInt(totalRankSum) + 1; // value di antara jumlah rank untuk pemilihan winner
-            int sum = 0;//total penambahan rank
-            for (int i = 0; i < chromosomes.size(); i++) { //iterasi dan cek setiap chromosome di population
-                sum += ranks[i]; //tambahkan ranking ke sum
-                if (sum >= randomValue) { // jika sum lebih besar dari randomValue maka chromosome ke i tersebut mennjadi parent (chromosome rank lebih tinggi lebih mungkin untuk dipillih, karena semakin mungkin tercakup random value)
+            int sum = 0;// total penambahan rank
+            for (int i = 0; i < chromosomes.size(); i++) { // iterasi dan cek setiap chromosome di population
+                sum += ranks[i]; // tambahkan ranking ke sum
+                if (sum >= randomValue) { // jika sum lebih besar dari randomValue maka chromosome ke i tersebut
+                                          // mennjadi parent (chromosome rank lebih tinggi lebih mungkin untuk dipillih,
+                                          // karena semakin mungkin tercakup random value)
                     if (!parents.contains(chromosomes.get(i))) { // skip masukan parent ke parents jika sudah ada
                         parents.add(chromosomes.get(i));
                         break;
@@ -78,16 +83,24 @@ public class Population {
         chromosomes = parents;
     }
 
-    public void versusSelection(double elitism) { // tourney selection, pilih 2 chromosome random kemudian bandingkan, pilih yang lebih baik jadi parent
+    public void versusSelection(double elitism) { // tourney selection, pilih 2 chromosome random kemudian bandingkan,
+                                                  // pilih yang lebih baik jadi parent
         List<Chromosome> parents = new ArrayList<>();
-        while (parents.size() < size * elitism) { // pilih parents hingga ditemukan sesuai dengan elitism rate (karena semua parent masuk ke gen berikutnya)
+        while (parents.size() < size * elitism) { // pilih parents hingga ditemukan sesuai dengan elitism rate (karena
+                                                  // semua parent masuk ke gen berikutnya)
             Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size())); // pilih 2 chromosome random
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
-            while (parent1 == parent2) {//jika kedua parent sama, loop hingga didapatkan yang berbeda
+            while (parent1 == parent2) {// jika kedua parent sama, loop hingga didapatkan yang berbeda
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            Chromosome winner = (parent1.getFitnessValue() > parent2.getFitnessValue()) ? parent1 : parent2; // pilih parent dengan fitness value lebih besar
+            Chromosome winner = (parent1.getFitnessValue() > parent2.getFitnessValue()) ? parent1 : parent2; // pilih
+                                                                                                             // parent
+                                                                                                             // dengan
+                                                                                                             // fitness
+                                                                                                             // value
+                                                                                                             // lebih
+                                                                                                             // besar
             if (!parents.contains(winner)) { // skip masukan parent ke parents jika sudah ada
                 parents.add(winner);
             }
@@ -101,13 +114,14 @@ public class Population {
 
         while (parents.size() < size * elitism) {// size / 2 karena 50% jadi parent
             List<Chromosome> contestants = new ArrayList<>();// chromosome per bracket
-            while (contestants.size() < tournamentSize) { //tambahkan crhomosome sbyk tourney size ke contestants
+            while (contestants.size() < tournamentSize) { // tambahkan crhomosome sbyk tourney size ke contestants
                 Chromosome contestant = chromosomes.get(random.nextInt(chromosomes.size())); // pilih random
-                if (!contestants.contains(contestant)) {//skip jika sebelumnnya sudah dimasukkan
+                if (!contestants.contains(contestant)) {// skip jika sebelumnnya sudah dimasukkan
                     contestants.add(contestant);
                 }
             }
-            Chromosome winner = contestants.stream().max(Comparator.comparingDouble(Chromosome::getFitnessValue)).orElseThrow(); //pilih pemenang dari bracket tourney
+            Chromosome winner = contestants.stream().max(Comparator.comparingDouble(Chromosome::getFitnessValue))
+                    .orElseThrow(); // pilih pemenang dari bracket tourney
             if (!parents.contains(winner)) { // skip masukan parent ke parents jika sudah ada
                 parents.add(winner);
             }
@@ -115,22 +129,23 @@ public class Population {
         chromosomes = parents;// populasi sekarang menjadi parents
     }
 
-    public void singlePointCrossover() { // single point crossover
-        while (chromosomes.size() < size) { //tambahkan hasil crossover ke population hingga penuh
-            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size())); //pilih 2 parent random (dari hasil selection sebelumnya)
+    public void singlePointCrossover(double crossoverRate) { // single point crossover
+        while (chromosomes.size() < size) { // tambahkan hasil crossover ke population hingga penuh
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size())); // pilih 2 parent random (dari
+                                                                                      // hasil selection sebelumnya)
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
 
-            while (parent1 == parent2) { //jika kedua parent sama, loop hingga didapatkan yang berbeda
+            while (parent1 == parent2) { // jika kedua parent sama, loop hingga didapatkan yang berbeda
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            int crossoverPoint = random.nextInt(parent1.genes.length); //randomize crossover point
+            int crossoverPoint = random.nextInt(parent1.genes.length); // randomize crossover point
 
-            char[] offspring1Genes = new char[parent1.genes.length]; //init offspring
+            char[] offspring1Genes = new char[parent1.genes.length]; // init offspring
             char[] offspring2Genes = new char[parent2.genes.length];
 
-            for (int i = 0; i < parent1.genes.length; i++) {//masukan alele parent ke gene offpsring
-                if (i < crossoverPoint) { //crossover point sebagai penanda untuk tukar parent
+            for (int i = 0; i < parent1.genes.length; i++) {// masukan alele parent ke gene offpsring
+                if (i < crossoverPoint) { // crossover point sebagai penanda untuk tukar parent
                     offspring1Genes[i] = parent1.genes[i];
                     offspring2Genes[i] = parent2.genes[i];
                 } else {
@@ -139,74 +154,93 @@ public class Population {
                 }
             }
 
-            mutateGenes(offspring1Genes); //mutasi gene
+            mutateGenes(offspring1Genes); // mutasi gene
             mutateGenes(offspring2Genes);
 
-            chromosomes.add(new Chromosome(puzzle, offspring1Genes)); //tambahkan offspring ke population
-            chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+            if (crossoverRate >= this.random.nextDouble()) {
+                chromosomes.add(new Chromosome(puzzle, offspring1Genes));// tambahkan offspring ke population
+                chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+            } else {
+                chromosomes.add(parent1);
+                chromosomes.add(parent2);
+
+            }
         }
 
-        while (chromosomes.size() > size) { //hapus offspring berlebih (karena hasil / 2 dari metode selection parent bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
+        while (chromosomes.size() > size) { // hapus offspring berlebih (karena hasil / 2 dari metode selection parent
+                                            // bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
             chromosomes.remove(chromosomes.size() - 1);
         }
     }
 
-    public void twoPointCrossover() {
-        while (chromosomes.size() < size) {//tambahkan hasil crossover ke population hingga penuh
-            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));//pilih 2 parent random (dari hasil selection sebelumnya)
+    public void twoPointCrossover(double crossoverRate) {
+        while (chromosomes.size() < size) {// tambahkan hasil crossover ke population hingga penuh
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));// pilih 2 parent random (dari
+                                                                                     // hasil selection sebelumnya)
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
 
-            while (parent1 == parent2) {//parent tidak boleh sama
+            while (parent1 == parent2) {// parent tidak boleh sama
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            int point1 = random.nextInt(parent1.genes.length);//ambil 2 point ramdom utk crossover
+            int point1 = random.nextInt(parent1.genes.length);// ambil 2 point ramdom utk crossover
             int point2 = random.nextInt(parent1.genes.length);
 
-            while (point1 == point2) {//point tidak boleh sama
+            while (point1 == point2) {// point tidak boleh sama
                 point2 = random.nextInt(parent1.genes.length);
             }
 
-            if (point1 > point2) {//tukar point 1 dan 2 jika p1 lebih besar (point 2 selalu lebih besar)
+            if (point1 > point2) {// tukar point 1 dan 2 jika p1 lebih besar (point 2 selalu lebih besar)
                 int temp = point1;
                 point1 = point2;
                 point2 = temp;
             }
 
-            char[] offspring1Genes = parent1.genes.clone();//clone gene parent ke offspring untuk mengcopy agar tidak ikut terubah saat dimodifikasi
+            char[] offspring1Genes = parent1.genes.clone();// clone gene parent ke offspring untuk mengcopy agar tidak
+                                                           // ikut terubah saat dimodifikasi
             char[] offspring2Genes = parent2.genes.clone();
 
             for (int i = point1; i < point2; i++) {
-                offspring1Genes[i] = parent2.genes[i];//ganti alele antara crossover point 1 dan 2 menjadi milik parent yang lain
+                offspring1Genes[i] = parent2.genes[i];// ganti alele antara crossover point 1 dan 2 menjadi milik parent
+                                                      // yang lain
                 offspring2Genes[i] = parent1.genes[i];
             }
 
-            mutateGenes(offspring1Genes);//mutasi
+            mutateGenes(offspring1Genes);// mutasi
             mutateGenes(offspring2Genes);
+            if (crossoverRate >= this.random.nextDouble()) {
+                chromosomes.add(new Chromosome(puzzle, offspring1Genes));// tambahkan offspring ke population
+                chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+            } else {
+                chromosomes.add(parent1);
+                chromosomes.add(parent2);
 
-            chromosomes.add(new Chromosome(puzzle, offspring1Genes));//tambahkan offspring ke population
-            chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+            }
+
         }
 
-        while (chromosomes.size() > size) { //hapus offspring berlebih (karena hasil / 2 dari metode selection parent bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
+        while (chromosomes.size() > size) { // hapus offspring berlebih (karena hasil / 2 dari metode selection parent
+                                            // bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
             chromosomes.remove(chromosomes.size() - 1);
         }
     }
 
-    public void uniformCrossover() {
-        while (chromosomes.size() < size) {//tambahkan hasil crossover ke population hingga penuh
-            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));//pilih 2 parent random (dari hasil selection sebelumnya)
+    public void uniformCrossover(double crossoverRate) {
+        while (chromosomes.size() < size) {// tambahkan hasil crossover ke population hingga penuh
+            Chromosome parent1 = chromosomes.get(random.nextInt(chromosomes.size()));// pilih 2 parent random (dari
+                                                                                     // hasil selection sebelumnya)
             Chromosome parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
 
-            while (parent1 == parent2) {//parent tidak boleh sama
+            while (parent1 == parent2) {// parent tidak boleh sama
                 parent2 = chromosomes.get(random.nextInt(chromosomes.size()));
             }
 
-            char[] offspring1Genes = new char[parent1.genes.length];//init offspring
+            char[] offspring1Genes = new char[parent1.genes.length];// init offspring
             char[] offspring2Genes = new char[parent2.genes.length];
 
-            for (int i = 0; i < parent1.genes.length; i++) {//masukan alele parent ke gene offpsring
-                if (random.nextBoolean()) {//masukkan alele dari parents, 50% kemungkinan alele itu berasal dari salah satu parent
+            for (int i = 0; i < parent1.genes.length; i++) {// masukan alele parent ke gene offpsring
+                if (random.nextBoolean()) {// masukkan alele dari parents, 50% kemungkinan alele itu berasal dari salah
+                                           // satu parent
                     offspring1Genes[i] = parent1.genes[i];
                     offspring2Genes[i] = parent2.genes[i];
                 } else {
@@ -215,31 +249,39 @@ public class Population {
                 }
             }
 
-            mutateGenes(offspring1Genes);//mutasi gene
+            mutateGenes(offspring1Genes);// mutasi gene
             mutateGenes(offspring2Genes);
+            if (crossoverRate >= this.random.nextDouble()) {
+                chromosomes.add(new Chromosome(puzzle, offspring1Genes));// tambahkan offspring ke population
+                chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+            } else {
+                chromosomes.add(parent1);
+                chromosomes.add(parent2);
 
-            chromosomes.add(new Chromosome(puzzle, offspring1Genes));//tambahkan offspring ke population
-            chromosomes.add(new Chromosome(puzzle, offspring2Genes));
+            }
+
         }
 
-        while (chromosomes.size() > size) { //hapus offspring berlebih (karena hasil / 2 dari metode selection parent bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
+        while (chromosomes.size() > size) { // hapus offspring berlebih (karena hasil / 2 dari metode selection parent
+                                            // bisa ganjil dan metode crossover selalu menambahkan 2 offspring)
             chromosomes.remove(chromosomes.size() - 1);
         }
     }
 
-    public void mutateGenes(char[] genes) { //mutasi gene
-        for (int i = 0; i < genes.length; i++) { //iterasi setiap gene
-            if (!puzzle.isLockedPosition(i)) {//jika bukan posisi awal puzzle dan dapat diubah
-                if (random.nextDouble() < 0.01) { //mutasi dengan probabilitas 1%
-                    genes[i] = (genes[i] == 'W') ? 'B' : 'W'; //ubah menjadi sebaliknya
+    public void mutateGenes(char[] genes) { // mutasi gene
+        for (int i = 0; i < genes.length; i++) { // iterasi setiap gene
+            if (!puzzle.isLockedPosition(i)) {// jika bukan posisi awal puzzle dan dapat diubah
+                if (random.nextDouble() < 0.01) { // mutasi dengan probabilitas 1%
+                    genes[i] = (genes[i] == 'W') ? 'B' : 'W'; // ubah menjadi sebaliknya
                 }
             }
         }
     }
 
-    public boolean hasSolution() {//check apakah ditemukan solusi di population
-        return bestFitness == 0; //true jika bestfitness = 0
+    public boolean hasSolution() {// check apakah ditemukan solusi di population
+        return bestFitness == 1; // true jika bestfitness = 0
     }
+
     // Kelas yang merepresentasikan sebuah Chromosome dalam algoritma genetika
     public class Chromosome {
         private char[] genes; // Array gen yang merepresentasikan solusi puzzle
@@ -252,7 +294,8 @@ public class Population {
             this.fitness = new Fitness(this); // Hitung fitness untuk chromosome ini
         }
 
-        // Konstruktor untuk membuat Chromosome berdasarkan puzzle dan gen yang diberikan
+        // Konstruktor untuk membuat Chromosome berdasarkan puzzle dan gen yang
+        // diberikan
         public Chromosome(YinYangPuzzle puzzle, char[] genes) {
             this.genes = genes; // Gunakan array gen yang diberikan
             this.fitness = new Fitness(this); // Hitung fitness untuk chromosome ini
@@ -306,7 +349,7 @@ public class Population {
         }
     }
 
-    //kelas yang merepresentasikan nilai Fitness dari chromosome tertentu
+    // kelas yang merepresentasikan nilai Fitness dari chromosome tertentu
     class Fitness {
         private double value;
         private Chromosome chromosome;
@@ -323,9 +366,9 @@ public class Population {
             int violationPenalty = 0; // penalti untuk blok 2x2 dengan warna yang sama
             int islandPenalty = 0; // penalti untuk jumlah pulau yang berlebihan
 
-            int bobotCP = 1; // bobot penalti untuk pola checkerboard
-            int bobotVP = 2; // bobot penalti untuk blok 2x2
-            int bobotIP = 3; // bobot penalti untuk jumlah pulau
+            double bobotCP = 0.1; // bobot penalti untuk pola checkerboard
+            double bobotVP = 0.2; // bobot penalti untuk blok 2x2
+            double bobotIP = 0.3; // bobot penalti untuk jumlah pulau
 
             // loop untuk memeriksa blok 2x2 dan pola checkerboard
             for (int row = 0; row < size - 1; row++) {
@@ -335,12 +378,15 @@ public class Population {
                     char below = board[(row + 1) * size + col];
                     char diagonal = board[(row + 1) * size + col + 1];
 
-                    // Tambahkan penalti jika ditemukan blok 2x2 dengan warna yang sama (notes: pola checkerboard melanggar aturan permainan)
+                    // Tambahkan penalti jika ditemukan blok 2x2 dengan warna yang sama (notes: pola
+                    // checkerboard melanggar aturan permainan)
                     if (current == right && current == below && current == diagonal) {
                         violationPenalty++;
                     }
 
-                    // Tambahkan penalti untuk pola checkerboard tertentu (notes: pada permainan apabila ditemukan pola checkerboard dalam puzzle, puzzle tersebut mustahil untuk ditemukan solusinya)
+                    // Tambahkan penalti untuk pola checkerboard tertentu (notes: pada permainan
+                    // apabila ditemukan pola checkerboard dalam puzzle, puzzle tersebut mustahil
+                    // untuk ditemukan solusinya)
                     if ((current == 'W' && right == 'B' && below == 'B' && diagonal == 'W') ||
                             (current == 'B' && right == 'W' && below == 'W' && diagonal == 'B')) {
                         checkerboardPenalty++;
@@ -369,12 +415,13 @@ public class Population {
                 }
             }
 
-            // Tambahkan penalti untuk jumlah pulau yang melebihi 1 (notes : seharusnya kalau merupakan solusi, hanya ada 1 buah pulai untuk masing-masing warna)
+            // Tambahkan penalti untuk jumlah pulau yang melebihi 1 (notes : seharusnya
+            // kalau merupakan solusi, hanya ada 1 buah pulai untuk masing-masing warna)
             islandPenalty = (whiteIslands > 1 ? whiteIslands - 1 : 0) +
                     (blackIslands > 1 ? blackIslands - 1 : 0);
 
             // Hitung total fitness (semakin negatif semakin buruk)
-            return -(bobotCP * checkerboardPenalty) - (bobotVP * violationPenalty) - (bobotIP * islandPenalty);
+            return 1 / (1 + (bobotCP * checkerboardPenalty) + (bobotVP * violationPenalty) + (bobotIP * islandPenalty));
         }
 
         public double getValue() {

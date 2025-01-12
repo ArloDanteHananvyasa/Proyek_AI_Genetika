@@ -8,8 +8,10 @@ public class GeneticSolution {
     private Population population;
     private int generationSize;
     private double elitism;
+    private double crossoverRate = 0.75;
 
-    public GeneticSolution(YinYangPuzzle puzzle, Random random, int populationSize, int generationSize, double elitism) { //init genetic solution
+    public GeneticSolution(YinYangPuzzle puzzle, Random random, int populationSize, int generationSize,
+            double elitism) { // init genetic solution
         this.population = new Population(populationSize, puzzle, random);
         this.generationSize = generationSize;
         this.elitism = elitism;
@@ -20,8 +22,8 @@ public class GeneticSolution {
         // Initialize the population
         population.generateInitialPopulation();
 
-        int lastGeneration = 0; //last gen untuk report
-        String lastBoard = ""; //lastboard untuk report
+        int lastGeneration = 0; // last gen untuk report
+        String lastBoard = ""; // lastboard untuk report
         int noImprovementCount = 0;
         double lastBestFitness = Double.NEGATIVE_INFINITY;
         double bestFitness = Double.NEGATIVE_INFINITY;
@@ -44,9 +46,9 @@ public class GeneticSolution {
             System.out.println("Generation " + generation + ": Best Fitness = " + bestFitness);
             System.out.println();
 
-            if (population.hasSolution()) { //jika ditemukan best solution, hentikan
+            if (population.hasSolution()) { // jika ditemukan best solution, hentikan
                 report += "Best solution found.\n";
-                System.out.printf("Best solution found.\n\n");
+                System.out.printf("Best solution found.\n");
                 break;
             }
 
@@ -68,9 +70,10 @@ public class GeneticSolution {
 
             // Perform selection, crossover
             population.simpleTournamentSelection(elitism);
-            population.twoPointCrossover();
+            population.twoPointCrossover(crossoverRate);
+
         }
-        //tambahkan board, generation, dan fitness terakhir ke report file
+        // tambahkan board, generation, dan fitness terakhir ke report file
         report += lastBoard;
         report += "Generation " + lastGeneration + ": Best Fitness = " + bestFitness;
         return report;
