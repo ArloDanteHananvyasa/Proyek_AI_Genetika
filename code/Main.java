@@ -10,8 +10,8 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) {
         long startTime = System.nanoTime();
-        // ganti path sendiri
-        String filePath = "/D:/angie/unpar/sem 5/ai/tubesAIGit/board10x10hard1.txt";
+        // ganti path sesuai dengan board yang ingin di
+        String filePath = "F:/Campus Stuff/Codes/AI/YinYang/YinYang/15x15.txt";
         int seed = 100; // seed
         int populationSize = 5000;
         int generationSize = 1000;

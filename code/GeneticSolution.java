@@ -8,7 +8,7 @@ public class GeneticSolution {
     private Population population;
     private int generationSize;
     private double elitism;
-    private double crossoverRate = 0.75;
+    private double crossoverRate = 0.85;
 
     public GeneticSolution(YinYangPuzzle puzzle, Random random, int populationSize, int generationSize,
             double elitism) { // init genetic solution
@@ -30,7 +30,7 @@ public class GeneticSolution {
 
         for (int generation = 0; generation < generationSize; generation++) {
             lastGeneration = generation;
-            // Evaluate the fitness of the current population
+            // evaluasi nilai fitness untuk populasi yang sekarang
             String board = population.evaluateFitness();
             lastBoard = board;
 
@@ -42,7 +42,6 @@ public class GeneticSolution {
                 }
             }
 
-            // Log the best fitness value for monitoring
             System.out.println("Generation " + generation + ": Best Fitness = " + bestFitness);
             System.out.println();
 
@@ -52,7 +51,7 @@ public class GeneticSolution {
                 break;
             }
 
-            // Check for improvement
+            // cek apakah terjadi peningkatan nilai fitness
             if (bestFitness == lastBestFitness) {
                 noImprovementCount++;
             } else {
@@ -60,7 +59,7 @@ public class GeneticSolution {
                 lastBestFitness = bestFitness;
             }
 
-            // Stop if no improvement for 50 generations
+            // early termination ketika tidak ada perubahan fitness selama X (bisa diubah) generasi, sebagai contoh menggunakan 50
             if (noImprovementCount >= 50) {
                 report += "Stopped early due to no improvement for 50 generations.\n";
                 System.out.println("Stopping early due to no improvement for 50 generations.");
@@ -68,7 +67,7 @@ public class GeneticSolution {
                 break;
             }
 
-            // Perform selection, crossover
+            // lakukan selection, lalu crossover
             population.simpleTournamentSelection(elitism);
             population.twoPointCrossover(crossoverRate);
 
