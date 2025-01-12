@@ -21,6 +21,7 @@ public class Population {
         return chromosomes;
     }
 
+    //membuat populasi awal
     public void generateInitialPopulation() {
         for (int i = 0; i < size; i++) {
             Chromosome chromosome = new Chromosome(puzzle);
@@ -271,7 +272,7 @@ public class Population {
     public void mutateGenes(char[] genes) { // mutasi gene
         for (int i = 0; i < genes.length; i++) { // iterasi setiap gene
             if (!puzzle.isLockedPosition(i)) {// jika bukan posisi awal puzzle dan dapat diubah
-                if (random.nextDouble() < 0.01) { // mutasi dengan probabilitas 1%
+                if (random.nextDouble() < 0.05) { // mutasi dengan probabilitas 1%
                     genes[i] = (genes[i] == 'W') ? 'B' : 'W'; // ubah menjadi sebaliknya
                 }
             }
