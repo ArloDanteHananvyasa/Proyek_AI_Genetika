@@ -48,7 +48,7 @@ public class GeneticSolution {
 
             if (population.hasSolution()) { // jika ditemukan best solution, hentikan
                 report += "Best solution found.\n";
-                System.out.printf("Best solution found.\n\n");
+                System.out.printf("Best solution found.\n");
                 break;
             }
 

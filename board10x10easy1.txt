@@ -2,7 +2,11 @@
 B . W W W . W W . .
 . . B B . . . B W .
 . B W . . B B . . .
+<<<<<<< HEAD
 . B W . . . B . . W
+=======
+. B W . . . B . . .
+>>>>>>> ee34b18ef02bec68b32b8ddb0a8dace400856f7c
 . B W B . . . B . .
 . B W . . W B . W .
 . B W B . . . B . .
