@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         long startTime = System.nanoTime();
         // ganti path sendiri
-        String filePath = "/D:/angie/unpar/sem 5/ai/tubesAIGit/board10x10hard1.txt";
+        String filePath = "/D:/angie/unpar/sem 5/ai/tubesAIGit/board6x6hard2.txt";
         int seed = 100; // seed
         int populationSize = 5000;
         int generationSize = 1000;
